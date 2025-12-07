@@ -10,7 +10,7 @@ import json
 from pathlib import Path
 from datetime import datetime
 
-DATA_DIR = Path("data")
+DATA_DIR = Path("dataset/data")
 ANOMALY_DATE = datetime(2023, 10, 5).date()
 EXPECTED_MULTIPLIER = 3.0
 

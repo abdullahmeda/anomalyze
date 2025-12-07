@@ -5,10 +5,10 @@ This script transforms the raw HuggingFace dataset into a timestamped,
 anomaly-labeled dataset ready for hybrid anomaly detection experiments.
 
 Outputs:
-- data/train.csv: Jan-Jun 2023 (normal only)
-- data/test.csv: Jul-Dec 2023 (normal + 1-day spike anomaly)
-- data/full_dataset.csv: Combined with split marker
-- data/anomaly_metadata.json: Ground truth summary
+- dataset/data/train.csv: Jan-Sep 2023 (normal only)
+- dataset/data/test.csv: Oct-Dec 2023 (normal + 1-day spike anomaly)
+- dataset/data/full_dataset.csv: Combined with split marker
+- dataset/data/anomaly_metadata.json: Ground truth summary
 """
 
 import pandas as pd
@@ -23,7 +23,7 @@ from pathlib import Path
 # ═══════════════════════════════════════════════════════════════════════════════
 
 RANDOM_SEED = 42
-OUTPUT_DIR = Path("data")
+OUTPUT_DIR = Path("dataset/data")
 
 # Time range
 START_DATE = datetime(2023, 1, 1)
