@@ -85,8 +85,7 @@ class TestDataQuality:
         """Check all required columns are present."""
         required = [
             "ticket_id", "subject", "body", "type", "queue", "priority",
-            "language", "timestamp", "anomaly_label", "is_anomaly",
-            "hour", "day_of_week", "split"
+            "language", "timestamp", "anomaly_label", "is_anomaly", "split"
         ]
         for col in required:
             assert col in full_df.columns, f"Missing column: {col}"
@@ -214,35 +213,6 @@ class TestMetadata:
     def test_metadata_anomaly_date(self, metadata):
         """Metadata should have correct anomaly date."""
         assert metadata["anomaly"]["date"] == ANOMALY_DATE.strftime("%Y-%m-%d")
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# TEMPORAL FEATURES TESTS
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
-class TestTemporalFeatures:
-    def test_hour_range(self, full_df):
-        """Hour should be 0-23."""
-        assert full_df["hour"].min() >= 0
-        assert full_df["hour"].max() <= 23
-
-    def test_day_of_week_range(self, full_df):
-        """Day of week should be 0-6."""
-        assert full_df["day_of_week"].min() >= 0
-        assert full_df["day_of_week"].max() <= 6
-
-    def test_weekend_flag(self, full_df):
-        """Weekend flag should match day_of_week."""
-        weekend_rows = full_df[full_df["is_weekend"]]
-        assert weekend_rows["day_of_week"].isin([5, 6]).all()
-
-    def test_business_hours_flag(self, full_df):
-        """Business hours should be 9-17 on weekdays."""
-        biz_rows = full_df[full_df["is_business_hours"]]
-        assert (biz_rows["hour"] >= 9).all()
-        assert (biz_rows["hour"] < 17).all()
-        assert (~biz_rows["is_weekend"]).all()
 
 
 if __name__ == "__main__":

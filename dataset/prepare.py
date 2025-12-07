@@ -308,23 +308,14 @@ def label_anomalies(df: pd.DataFrame) -> pd.DataFrame:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# STEP 5: ADD METADATA
+# STEP 5: ADD SPLIT MARKER
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-def add_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Add temporal features and split marker."""
+def add_split_marker(df: pd.DataFrame) -> pd.DataFrame:
+    """Add train/test split marker based on timestamp."""
     df = df.copy()
-
-    df["hour"] = df["timestamp"].dt.hour
-    df["day_of_week"] = df["timestamp"].dt.dayofweek
-    df["day_of_month"] = df["timestamp"].dt.day
-    df["week_of_year"] = df["timestamp"].dt.isocalendar().week.astype(int)
-    df["is_weekend"] = df["day_of_week"].isin([5, 6])
-    df["is_business_hours"] = (df["hour"] >= 9) & (df["hour"] < 17) & (~df["is_weekend"])
-    df["text_length"] = df["body"].str.len()
     df["split"] = df["timestamp"].apply(lambda x: "train" if x <= TRAIN_END else "test")
-
     return df
 
 
@@ -446,9 +437,9 @@ def main():
     df = label_anomalies(df)
     print(f"  Anomaly tickets: {df['is_anomaly'].sum()}")
 
-    # Step 5: Add features
-    print("\n[STEP 5] Adding features...")
-    df = add_features(df)
+    # Step 5: Add split marker
+    print("\n[STEP 5] Adding split marker...")
+    df = add_split_marker(df)
 
     # Show characteristic comparison
     anomaly_df = df[df["is_anomaly"]]

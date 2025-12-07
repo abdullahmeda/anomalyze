@@ -12,7 +12,18 @@ python3 -m venv .venv
 source .venv/bin/activate
 
 # Install package with dev dependencies
-pip install -e ".[dev]"
+make install
+```
+
+## Quick Reference
+
+```bash
+make help        # Show all available commands
+make install     # Install package with dev dependencies
+make prepare     # Generate dataset from HuggingFace
+make visualize   # Generate time-series plots
+make test        # Run all tests
+make clean       # Remove generated files
 ```
 
 ---
@@ -68,14 +79,9 @@ The anomaly is detectable via:
 | `tag_1` to `tag_4` | str | Classification tags |
 | `anomaly_label` | str | "spike_volume" or null |
 | `is_anomaly` | bool | True if anomaly ticket |
-| `hour` | int | Hour of day (0-23) |
-| `day_of_week` | int | Day of week (0=Mon, 6=Sun) |
-| `day_of_month` | int | Day of month (1-31) |
-| `week_of_year` | int | Week number (1-52) |
-| `is_weekend` | bool | Saturday or Sunday |
-| `is_business_hours` | bool | Mon-Fri, 9am-5pm |
-| `text_length` | int | Character count of body |
 | `split` | str | "train" or "test" |
+
+> **Note:** Temporal features (hour, day_of_week, is_weekend, etc.) are computed at training time via `ml/features.py`, not stored in the CSV files.
 
 ### Output Files
 
@@ -90,32 +96,26 @@ data/
 ### Generating the Dataset
 
 ```bash
-# Activate virtual environment
-source .venv/bin/activate
-
-# Run preparation pipeline
-python prepare_dataset.py
+make prepare
 ```
 
 The script:
 1. Loads data from HuggingFace
 2. Generates realistic timestamps with weekly/hourly patterns
 3. Injects the anomaly with characteristic skew
-4. Adds temporal features
-5. Exports train/test splits
+4. Exports train/test splits
 
 ### Running Tests
 
 ```bash
-pytest tests.py -v
+make test
 ```
 
-29 tests validate:
+25 tests validate:
 - File existence and data quality
 - Train/test split correctness
 - Anomaly volume and characteristics
 - Metadata consistency
-- Temporal feature correctness
 
 ---
 
