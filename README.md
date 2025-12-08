@@ -13,6 +13,10 @@ source .venv/bin/activate
 
 # Install package with dev dependencies
 make install
+
+# Configure OpenAI API key (required for agent)
+cp .env.example .env
+# Edit .env and add your OPENAI_API_KEY
 ```
 
 ## Quick Reference
@@ -30,6 +34,9 @@ make clean       # Remove generated files
 python3 -m ml.run --model prophet              # Prophet model (default 99% CI)
 python3 -m ml.run --model arima                # ARIMA model
 python3 -m ml.run --model prophet --interval 0.95  # Custom confidence interval
+
+# Run LLM agent for incident analysis
+python3 -m agent.run --date 2023-10-05         # Generate incident report
 ```
 
 ---
@@ -260,6 +267,83 @@ Both models correctly learned the weekly seasonality patterns from the training 
 
 ---
 
+## Agent
+
+When the ML models detect an anomaly, an LLM-powered agent can be invoked to analyze the incident and generate a structured report.
+
+### How It Works
+
+1. **ML Detection**: Prophet/ARIMA detects a volume spike on a specific date
+2. **Agent Invocation**: The agent is called with the anomaly date
+3. **Tool Calls**: The agent uses tools to gather statistics and read ticket samples
+4. **Report Generation**: A structured incident report is produced via OpenAI's structured outputs
+
+### Available Tools
+
+| Tool | Description |
+|------|-------------|
+| `fetch_ticket_stats(date)` | Retrieves volume, priority, type, queue, and tag distributions with baseline comparison (vs previous 7 days) |
+| `fetch_ticket_samples(date, limit)` | Returns random ticket samples (subject, body, metadata) for qualitative analysis |
+
+### Running the Agent
+
+```bash
+# Analyze an anomaly date
+python3 -m agent.run --date 2023-10-05
+
+# Save report to file
+python3 -m agent.run --date 2023-10-05 --output report.json
+```
+
+### Output Schema
+
+The agent produces a structured `IncidentReport` with the following fields:
+
+```json
+{
+  "title": "Major Service Disruption Due to Server Overload",
+  "executive_summary": "On October 5th, a critical issue led to a 268.8% increase...",
+  "root_cause": "Server overload during peak times affecting multiple platforms...",
+  "impact_metrics": {
+    "volume_increase_pct": 268.8,
+    "primary_priority": "high",
+    "primary_queue": "Technical Support",
+    "primary_type": "Incident"
+  },
+  "affected_services": ["Data Analytics Tool", "SaaS Platform", "Digital Campaign Integration"],
+  "customer_sentiment": "Frustrated",
+  "sample_complaints": [
+    "Critical issue with data analytics tool crashing during report generation...",
+    "SaaS platform crash due to server overload and resource constraints..."
+  ],
+  "recommendations": [
+    "Increase server capacity during peak times to handle high data volume.",
+    "Implement more robust monitoring to predict and mitigate server overload."
+  ]
+}
+```
+
+### Agent Architecture
+
+```
+agent/
+├── tools/
+│   ├── fetch_ticket_stats.py   # Stats with baseline comparison
+│   └── fetch_ticket_samples.py # Raw ticket content
+├── prompts.py                  # System prompt + IncidentReport schema
+└── run.py                      # Entry point
+```
+
+### Configuration
+
+Set your OpenAI API key in `.env`:
+
+```bash
+OPENAI_API_KEY=sk-proj-your-api-key-here
+```
+
+---
+
 ## Development
 
 ### Project Structure
@@ -282,6 +366,13 @@ anomalyze/
 │   ├── features.py        # Data preparation
 │   └── data/              # ML-ready time-series
 │
+├── agent/                 # LLM-powered incident analysis
+│   ├── tools/
+│   │   ├── fetch_ticket_stats.py   # Stats with baseline
+│   │   └── fetch_ticket_samples.py # Raw ticket samples
+│   ├── prompts.py         # System prompt + output schema
+│   └── run.py             # Agent entry point
+│
 ├── Makefile               # Convenient workflow commands
 ├── pyproject.toml         # Package configuration
 └── README.md              # This file
@@ -302,6 +393,7 @@ anomalyze/
 - `matplotlib` - Visualization
 - `prophet` - Facebook Prophet forecasting
 - `statsmodels` - ARIMA/SARIMAX models
+- `openai-agents` - OpenAI Agents SDK for LLM-powered analysis
 - `pytest` - Testing framework
 
 ---
