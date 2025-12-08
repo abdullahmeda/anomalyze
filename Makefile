@@ -1,15 +1,20 @@
-.PHONY: env install dataset prepare visualize test clean help
+.PHONY: env install dataset prepare visualize test clean start stop logs help
 
 # Default target
 help:
 	@echo "Available commands:"
-	@echo "  make env         - Create a local virtual environment in .venv and upgrade pip"
-	@echo "  make install     - Install package with dev dependencies"
-	@echo "  make dataset     - Generate full dataset from HuggingFace"
-	@echo "  make prepare     - Create train/test splits for ML training"
-	@echo "  make visualize   - Generate time-series plots"
-	@echo "  make test        - Run all tests"
-	@echo "  make clean       - Remove generated files"
+	@echo "  make env            - Create a local virtual environment in .venv and upgrade pip"
+	@echo "  make install        - Install package with dev dependencies"
+	@echo "  make dataset        - Generate full dataset from HuggingFace"
+	@echo "  make prepare        - Create train/test splits for ML training"
+	@echo "  make visualize      - Generate time-series plots"
+	@echo "  make test           - Run all tests"
+	@echo "  make clean          - Remove generated files"
+	@echo ""
+	@echo "Docker Services:"
+	@echo "  make start          - Start Docker services"
+	@echo "  make stop           - Stop Docker services"
+	@echo "  make logs           - View Docker logs"
 
 
 # Create a local virtual environment in .venv and upgrade pip
@@ -47,3 +52,14 @@ clean:
 	rm -rf .pytest_cache */.pytest_cache
 	rm -rf *.egg-info
 
+# Start Docker services
+start: stop
+	docker compose up -d
+
+# Stop Docker services
+stop:
+	docker compose down
+
+# View Docker logs
+logs:
+	docker compose logs -f
