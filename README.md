@@ -323,6 +323,8 @@ The agent produces a structured `IncidentReport` with the following fields:
 }
 ```
 
+> **Note**: Google ADK does not support structured outputs combined with tool calling in a single agent ([see discussion](https://github.com/google/adk-python/discussions/322)). We work around this by instructing the LLM to output JSON in the system prompt.
+
 ### Agent Architecture
 
 ```
