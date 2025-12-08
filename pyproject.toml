@@ -25,6 +25,7 @@ dependencies = [
     "matplotlib",
     "prophet",
     "statsmodels",
+    "openai-agents",
 ]
 
 [project.optional-dependencies]
