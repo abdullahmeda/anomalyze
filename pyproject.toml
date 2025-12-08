@@ -25,7 +25,11 @@ dependencies = [
     "matplotlib",
     "prophet",
     "statsmodels",
-    "openai-agents",
+    "google-adk",
+    "litellm",
+    "pydantic",
+    "arize-phoenix-otel",
+    "openinference-instrumentation-google-adk",
 ]
 
 [project.optional-dependencies]

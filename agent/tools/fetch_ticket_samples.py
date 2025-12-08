@@ -5,7 +5,6 @@ from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
-from agents import function_tool
 
 DATASET_PATH = Path(__file__).parent.parent.parent / "dataset" / "data" / "full_dataset.csv"
 
@@ -15,7 +14,6 @@ def _load_dataset() -> pd.DataFrame:
     return pd.read_csv(DATASET_PATH, parse_dates=["timestamp"])
 
 
-@function_tool
 def fetch_ticket_samples(date: str, limit: int = 20) -> str:
     """
     Retrieve random ticket samples from a specific date.

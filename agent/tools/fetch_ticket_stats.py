@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 from pathlib import Path
 
 import pandas as pd
-from agents import function_tool
 
 DATASET_PATH = Path(__file__).parent.parent.parent / "dataset" / "data" / "full_dataset.csv"
 BASELINE_DAYS = 7
@@ -31,7 +30,6 @@ def _get_tag_distribution(df: pd.DataFrame, top_n: int = 10) -> dict:
     return counts.head(top_n).round(1).to_dict()
 
 
-@function_tool
 def fetch_ticket_stats(date: str) -> str:
     """
     Retrieve ticket statistics for a specific date with baseline comparison.

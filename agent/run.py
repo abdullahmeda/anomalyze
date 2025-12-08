@@ -9,16 +9,29 @@ Usage:
 
 import argparse
 import asyncio
-import json
 import os
 
 from dotenv import load_dotenv
-from agents import Agent, Runner
 
-from agent.prompts import SYSTEM_PROMPT, IncidentReport
+# Google ADK Imports
+from google.adk.agents import LlmAgent
+from google.adk.models.lite_llm import LiteLlm
+from google.adk.runners import Runner
+from google.adk.sessions import InMemorySessionService
+from google.genai import types
+
+# Tracing Imports (Phoenix/OpenInference)
+from phoenix.otel import register
+from openinference.instrumentation.google_adk import GoogleADKInstrumentor
+
+from agent.prompts import SYSTEM_PROMPT
 from agent.tools import fetch_ticket_stats, fetch_ticket_samples
 
 load_dotenv()
+
+# Setup Tracing (Logs to a local Phoenix server)
+tracer_provider = register(project_name="anomalyze-agent")
+GoogleADKInstrumentor().instrument(tracer_provider=tracer_provider)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -26,12 +39,13 @@ load_dotenv()
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-anomaly_agent = Agent(
-    name="Anomaly Analyst",
-    instructions=SYSTEM_PROMPT,
+openrouter_model = LiteLlm(model="openrouter/anthropic/claude-sonnet-4.5")
+
+anomaly_agent = LlmAgent(
+    name="anomaly_analyst",
+    model=openrouter_model,
+    instruction=SYSTEM_PROMPT,
     tools=[fetch_ticket_stats, fetch_ticket_samples],
-    model="gpt-4o",
-    output_type=IncidentReport,
 )
 
 
@@ -40,8 +54,27 @@ anomaly_agent = Agent(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-async def analyze_anomaly(date: str) -> IncidentReport:
+async def analyze_anomaly(date: str) -> str:
     """Run the anomaly analysis agent for a specific date."""
+    
+    # Session service handles conversation memory
+    session_service = InMemorySessionService()
+    
+    app_name = "anomalyze"
+    user_id = "analyst"
+    session_id = f"analysis_{date}"
+    
+    # Initialize the session
+    await session_service.create_session(
+        app_name=app_name, user_id=user_id, session_id=session_id
+    )
+    
+    runner = Runner(
+        agent=anomaly_agent,
+        app_name=app_name,
+        session_service=session_service,
+    )
+    
     prompt = f"""An automated monitor has detected a high volume of support tickets on {date}.
 
 Your task is to conduct a full analysis and generate a final incident report.
@@ -51,9 +84,18 @@ Use the available tools to:
 2. Then, fetch ticket samples to understand what customers are actually reporting
 3. Finally, synthesize your findings into a comprehensive incident report
 """
-
-    result = await Runner.run(anomaly_agent, prompt)
-    return result.final_output
+    
+    # Run the agent and collect final response
+    final_response = None
+    async for event in runner.run_async(
+        user_id=user_id,
+        session_id=session_id,
+        new_message=types.Content(role="user", parts=[types.Part(text=prompt)])
+    ):
+        if event.is_final_response():
+            final_response = event.content.parts[0].text
+    
+    return final_response
 
 
 def main():
@@ -62,8 +104,8 @@ def main():
     parser.add_argument("--output", "-o", help="Output file path (optional, prints to stdout if not specified)")
     args = parser.parse_args()
 
-    if "OPENAI_API_KEY" not in os.environ:
-        print("Error: OPENAI_API_KEY not set. Create a .env file or export the variable.")
+    if "OPENROUTER_API_KEY" not in os.environ:
+        print("Error: OPENROUTER_API_KEY not set. Create a .env file or export the variable.")
         return
 
     print(f"Analyzing anomaly on {args.date}...")
@@ -71,19 +113,15 @@ def main():
 
     report = asyncio.run(analyze_anomaly(args.date))
 
-    # Output as formatted JSON
-    report_json = report.model_dump_json(indent=2)
-
     if args.output:
         with open(args.output, "w") as f:
-            f.write(report_json)
+            f.write(report)
         print(f"Report saved to {args.output}")
     else:
         print("\nIncident Report:")
         print("-" * 60)
-        print(report_json)
+        print(report)
 
 
 if __name__ == "__main__":
     main()
-
