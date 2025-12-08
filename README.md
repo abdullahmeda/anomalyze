@@ -14,9 +14,9 @@ source .venv/bin/activate
 # Install package with dev dependencies
 make install
 
-# Configure OpenAI API key (required for agent)
+# Configure OpenRouter API key (required for agent)
 cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY
+# Edit .env and add your OPENROUTER_API_KEY
 ```
 
 ## Quick Reference
@@ -276,7 +276,7 @@ When the ML models detect an anomaly, an LLM-powered agent can be invoked to ana
 1. **ML Detection**: Prophet/ARIMA detects a volume spike on a specific date
 2. **Agent Invocation**: The agent is called with the anomaly date
 3. **Tool Calls**: The agent uses tools to gather statistics and read ticket samples
-4. **Report Generation**: A structured incident report is produced via OpenAI's structured outputs
+4. **Report Generation**: A structured incident report is produced by the LLM agent
 
 ### Available Tools
 
@@ -336,10 +336,10 @@ agent/
 
 ### Configuration
 
-Set your OpenAI API key in `.env`:
+Set your OpenRouter API key in `.env`:
 
 ```bash
-OPENAI_API_KEY=sk-proj-your-api-key-here
+OPENROUTER_API_KEY=sk-or-your-api-key-here
 ```
 
 ---
@@ -393,7 +393,7 @@ anomalyze/
 - `matplotlib` - Visualization
 - `prophet` - Facebook Prophet forecasting
 - `statsmodels` - ARIMA/SARIMAX models
-- `openai-agents` - OpenAI Agents SDK for LLM-powered analysis
+- `google-adk` - Google Agent Development Kit for LLM-powered analysis
 - `pytest` - Testing framework
 
 ---
