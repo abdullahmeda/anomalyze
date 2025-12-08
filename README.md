@@ -20,7 +20,8 @@ make install
 ```bash
 make help        # Show all available commands
 make install     # Install package with dev dependencies
-make prepare     # Generate dataset from HuggingFace
+make dataset     # Generate raw dataset from HuggingFace
+make prepare     # Create train/test splits for ML training
 make visualize   # Generate time-series plots
 make test        # Run all tests
 make clean       # Remove generated files
@@ -86,24 +87,50 @@ The anomaly is detectable via:
 ### Output Files
 
 ```
-data/
-├── train.csv              # Training set (Jan-Sep, normal only)
-├── test.csv               # Test set (Oct-Dec, contains anomaly)
-├── full_dataset.csv       # Combined dataset
+dataset/data/
+├── full_dataset.csv       # Raw ticket dataset (Jan-Dec)
 └── anomaly_metadata.json  # Ground truth and statistics
+
+ml/data/
+├── train.csv              # Daily time-series (Jan-Sep, normal only)
+└── test.csv               # Daily time-series (Oct-Dec, contains anomaly)
 ```
+
+### Data Schema
+
+**`full_dataset.csv`** (Raw Tickets):
+See "Columns" table above.
+
+**`train.csv` / `test.csv`** (Aggregated Time-Series):
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `timestamp` | datetime | Daily timestamp |
+| `count` | int | Total tickets per day |
+
+> **Note:** Additional features (day_of_week, is_weekend, etc.) can be computed at training time via `ml/features.py`
 
 ### Generating the Dataset
 
 ```bash
+# Step 1: Generate raw dataset from HuggingFace
+make dataset
+
+# Step 2: Create train/test splits for ML training
 make prepare
 ```
 
-The script:
+**Step 1** (`make dataset`):
 1. Loads data from HuggingFace
 2. Generates realistic timestamps with weekly/hourly patterns
 3. Injects the anomaly with characteristic skew
-4. Exports train/test splits
+4. Exports full_dataset.csv and metadata
+
+**Step 2** (`make prepare`):
+1. Reads full_dataset.csv
+2. Aggregates tickets to daily time-series
+3. Splits into train (Jan-Sep) and test (Oct-Dec)
+4. Exports to ml/data/ directory
 
 ### Running Tests
 

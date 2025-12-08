@@ -305,13 +305,6 @@
     "timestamp",
     "anomaly_label",
     "is_anomaly",
-    "hour",
-    "day_of_week",
-    "day_of_month",
-    "week_of_year",
-    "is_weekend",
-    "is_business_hours",
-    "text_length",
     "split"
   ],
   "random_seed": 42

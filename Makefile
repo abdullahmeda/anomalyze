@@ -1,35 +1,48 @@
-.PHONY: install prepare visualize test clean help
+.PHONY: env install dataset prepare visualize test clean help
 
 # Default target
 help:
 	@echo "Available commands:"
+	@echo "  make env         - Create a local virtual environment in .venv and upgrade pip"
 	@echo "  make install     - Install package with dev dependencies"
-	@echo "  make prepare     - Generate dataset from HuggingFace"
+	@echo "  make dataset     - Generate full dataset from HuggingFace"
+	@echo "  make prepare     - Create train/test splits for ML training"
 	@echo "  make visualize   - Generate time-series plots"
 	@echo "  make test        - Run all tests"
 	@echo "  make clean       - Remove generated files"
 
+
+# Create a local virtual environment in .venv and upgrade pip
+env:
+	python3 -m venv .venv
+	. .venv/bin/activate && pip install --upgrade pip
+
 # Install package in editable mode with dev dependencies
 install:
-	pip install -e ".[dev]"
+	. .venv/bin/activate && pip install -e ".[dev]"
 
-# Generate the dataset
+# Generate the raw dataset from HuggingFace
+dataset:
+	. .venv/bin/activate && cd dataset && python3 preprocess.py
+
+# Create train/test splits for ML training
 prepare:
-	cd dataset && python prepare.py
+	. .venv/bin/activate && python3 -m ml.features
 
 # Generate visualization plots
 visualize:
-	cd dataset && python visualize.py
+	. .venv/bin/activate && cd dataset && python3 visualize.py
 
 # Run tests
 test:
-	cd dataset && pytest tests.py -v
+	. .venv/bin/activate && cd dataset && pytest tests.py -v
 
 # Clean generated files
 clean:
 	rm -rf dataset/data/*.csv
 	rm -rf dataset/data/anomaly_metadata.json
 	rm -rf dataset/plots/*.png
+	rm -rf ml/data/*.csv
 	rm -rf __pycache__ */__pycache__ */*/__pycache__
 	rm -rf .pytest_cache */.pytest_cache
 	rm -rf *.egg-info
