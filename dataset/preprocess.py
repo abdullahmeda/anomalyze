@@ -23,7 +23,9 @@ from pathlib import Path
 # ═══════════════════════════════════════════════════════════════════════════════
 
 RANDOM_SEED = 42
-OUTPUT_DIR = Path("data")
+# Use path relative to this script's location
+SCRIPT_DIR = Path(__file__).parent
+OUTPUT_DIR = SCRIPT_DIR / "data"
 
 # Time range
 START_DATE = datetime(2023, 1, 1)

@@ -18,8 +18,10 @@ from pathlib import Path
 from datetime import datetime
 
 # Configuration
-DATASET_PATH = Path("dataset/data/full_dataset.csv")
-OUTPUT_DIR = Path("ml/data")
+# Use paths relative to project root (where -m is run from)
+PROJECT_ROOT = Path(__file__).parent.parent
+DATASET_PATH = PROJECT_ROOT / "dataset" / "data" / "full_dataset.csv"
+OUTPUT_DIR = Path(__file__).parent / "data"
 TRAIN_END = datetime(2023, 9, 30, 23, 59, 59)
 
 

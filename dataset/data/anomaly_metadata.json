@@ -23,7 +23,7 @@
     "date": "2023-10-05",
     "volume_multiplier": 3.0,
     "affected_tickets": 589,
-    "description": "3\u00d7 volume spike with characteristic skew (simulates major outage/bug)",
+    "description": "3x volume spike with characteristic skew (simulates major outage/bug)",
     "characteristics": {
       "priority_distribution": {
         "high": 84.0,

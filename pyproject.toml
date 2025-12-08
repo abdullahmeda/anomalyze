@@ -23,6 +23,8 @@ dependencies = [
     "pandas",
     "numpy",
     "matplotlib",
+    "prophet",
+    "statsmodels",
 ]
 
 [project.optional-dependencies]

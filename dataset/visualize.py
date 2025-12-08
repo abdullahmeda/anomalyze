@@ -4,8 +4,10 @@ import matplotlib.dates as mdates
 from pathlib import Path
 
 # Config
-DATA_PATH = Path("data/full_dataset.csv")
-OUTPUT_DIR = Path("plots")
+# Use paths relative to this script's location
+SCRIPT_DIR = Path(__file__).parent
+DATA_PATH = SCRIPT_DIR / "data" / "full_dataset.csv"
+OUTPUT_DIR = SCRIPT_DIR / "plots"
 ANOMALY_DATE = "2023-10-05"
 
 def load_data():

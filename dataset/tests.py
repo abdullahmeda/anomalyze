@@ -10,8 +10,10 @@ import json
 from pathlib import Path
 from datetime import datetime
 
-DATA_DIR = Path("data")
-ML_DATA_DIR = Path("../ml/data")
+# Use paths relative to this script's location
+SCRIPT_DIR = Path(__file__).parent
+DATA_DIR = SCRIPT_DIR / "data"
+ML_DATA_DIR = SCRIPT_DIR.parent / "ml" / "data"
 ANOMALY_DATE = datetime(2023, 10, 5).date()
 EXPECTED_MULTIPLIER = 3.0
 
