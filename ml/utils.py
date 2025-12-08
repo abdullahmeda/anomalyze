@@ -136,6 +136,5 @@ def plot_results(
 
     plt.tight_layout()
     plt.savefig(output_path, dpi=150, bbox_inches="tight")
-    print(f"  Saved {output_path}")
     plt.close()
 

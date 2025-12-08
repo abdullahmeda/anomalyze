@@ -1,4 +1,4 @@
-.PHONY: env install dataset prepare visualize prophet arima test clean help
+.PHONY: env install dataset prepare visualize test clean help
 
 # Default target
 help:
@@ -8,8 +8,6 @@ help:
 	@echo "  make dataset     - Generate full dataset from HuggingFace"
 	@echo "  make prepare     - Create train/test splits for ML training"
 	@echo "  make visualize   - Generate time-series plots"
-	@echo "  make prophet     - Run Prophet anomaly detection"
-	@echo "  make arima       - Run ARIMA anomaly detection"
 	@echo "  make test        - Run all tests"
 	@echo "  make clean       - Remove generated files"
 
@@ -34,14 +32,6 @@ prepare:
 # Generate visualization plots
 visualize:
 	. .venv/bin/activate && python3 -m dataset.visualize
-
-# Run Prophet anomaly detection
-prophet:
-	. .venv/bin/activate && python3 -m ml.run --model prophet
-
-# Run ARIMA anomaly detection
-arima:
-	. .venv/bin/activate && python3 -m ml.run --model arima
 
 # Run tests
 test:
