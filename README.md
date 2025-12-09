@@ -131,6 +131,72 @@ make start
 ![Phoenix Observability Dashboard](asstes/phoenix.png)
 *Live trace of the ADK agent showing tool calls, reasoning steps, and structured output generation*
 
+## 📊 Dataset Creation: Solving the Ground Truth Problem
+
+### The Challenge
+
+Building a reliable anomaly detection system requires ground truth data—you need to know when anomalies actually occurred to validate your models. However, publicly available customer support datasets with labeled anomalies are virtually non-existent. The few that exist suffer from:
+
+1. **Synthetic oversimplification**: Random noise or step functions that don't reflect real-world patterns
+2. **Privacy constraints**: Real production data with genuine incidents is rarely shared
+3. **Lack of semantic richness**: Most time-series datasets are just numbers, missing the qualitative ticket text needed for root cause analysis
+4. **Validation circularity**: Using a model's own predictions as "ground truth" defeats the purpose of benchmarking
+
+### The Solution: Programmatic Anomaly Injection
+
+Rather than relying on pre-labeled data, this project uses a **controlled synthesis approach** that combines real customer support text with programmatic anomaly injection:
+
+#### 1. **Real Text Foundation**
+We start with the [Tobi-Bueck/customer-support-tickets](https://huggingface.co/datasets/Tobi-Bueck/customer-support-tickets) dataset from HuggingFace, which contains ~62,000 authentic customer support tickets with rich metadata (priority, type, queue, tags, subject, body text).
+
+#### 2. **Realistic Temporal Distribution**
+Tickets are assigned timestamps following a **realistic business pattern**:
+- **Weekly seasonality**: Higher volume on weekdays (Monday=1.15×, Sunday=0.40×)
+- **Hourly patterns**: Peak during business hours (9 AM-3 PM), minimal overnight
+- **Natural variance**: Random jitter (±15%) to simulate day-to-day fluctuations
+
+```python
+WEEKLY_PATTERN = {
+    0: 1.15,  # Monday
+    1: 1.05,  # Tuesday
+    2: 1.00,  # Wednesday
+    3: 1.00,  # Thursday
+    4: 0.95,  # Friday
+    5: 0.45,  # Saturday
+    6: 0.40   # Sunday
+}
+```
+
+#### 3. **Characteristic-Based Anomaly Injection**
+On the designated anomaly date (Oct 5, 2023), we don't just add random tickets. Instead, we use **weighted sampling** based on ticket characteristics to simulate a real production incident:
+
+- Tickets with `priority=high/critical` are 3-5× more likely to be selected
+- Tickets tagged with `Bug`, `Outage`, `Crash`, `Security` are 3-5× more likely
+- Tickets in `Technical Support` queue are 3× more likely
+- **Result**: The anomaly day naturally exhibits the distributional shifts you'd see in a real outage (84% high/critical priority vs 38% baseline)
+
+This creates a **semantically coherent anomaly**—the spike isn't just volume, it's a spike in *the right kind* of tickets.
+
+#### 4. **Ground Truth Guarantee**
+Because we programmatically inject the anomaly, we have **perfect ground truth**:
+- Exact date: `2023-10-05`
+- Exact volume multiplier: `1.5×` (configurable)
+- Exact affected tickets: 296 tickets with `is_anomaly=True` flag
+- Metadata exported to `anomaly_metadata.json` for reproducible validation
+
+#### 5. **Temporal Integrity**
+The anomaly only appears in the **test set** (Oct-Dec 2023), ensuring the ML models are evaluated on truly unseen data. All 22 pytest tests validate this split integrity.
+
+### Why This Approach Works
+
+✅ **Realistic patterns**: Models must learn genuine weekly/hourly seasonality, not toy data  
+✅ **Semantic richness**: Agent can analyze real customer complaints for root cause analysis  
+✅ **Reproducible**: `RANDOM_SEED=42` ensures identical datasets across runs  
+✅ **Flexible**: Easy to adjust anomaly magnitude, date, or characteristics for experimentation  
+✅ **Validated**: Comprehensive test suite ensures data quality and split integrity  
+
+This methodology bridges the gap between purely synthetic (unrealistic) and purely real (unavailable) datasets, providing a controlled environment that's still faithful to production complexity.
+
 ## 🧠 The Intelligence Layer
 
 ### Part 1: Classical ML (The Signal)
