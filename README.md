@@ -197,10 +197,11 @@ ml/
 ├── models/
 │   ├── __init__.py        # Model registry
 │   ├── prophet.py         # Prophet implementation
-│   └── arima.py           # ARIMA implementation
+│   ├── arima.py           # ARIMA implementation
+│   └── lgbm.py            # LightGBM implementation
 ├── run.py                 # Unified runner with argparse
 ├── utils.py               # Shared evaluation and plotting
-├── features.py            # Data preparation
+├── features.py            # Data preparation and feature engineering
 └── data/                  # Train/test CSVs
 ```
 
@@ -236,6 +237,7 @@ from ml.models import AnomalyYourModel
 MODELS = {
     "prophet": AnomalyProphet,
     "arima": AnomalyARIMA,
+    "lgbm": AnomalyLGBM,
     "yourmodel": AnomalyYourModel,  # Add here
 }
 ```
@@ -263,7 +265,15 @@ python3 -m ml.run --model yourmodel
 - **Metrics**: Precision 100%, Recall 100%, F1 100%
 - **Detection**: Successfully identified October 5, 2023 spike (589 tickets vs expected 197)
 
-Both models correctly learned the weekly seasonality patterns from the training data and detected the 3× volume spike with zero false positives.
+### LightGBM
+
+- **Model**: Gradient boosting with engineered time-series features
+- **Features**: Day-of-week, lag (1/7/14 days), rolling statistics (7-day mean/std)
+- **Configuration**: 99% confidence interval with time-series cross-validation for uncertainty estimation
+- **Metrics**: Precision 100%, Recall 100%, F1 100%
+- **Detection**: Successfully identified October 5, 2023 spike (589 tickets vs expected 198)
+
+All three models correctly learned the weekly seasonality patterns from the training data and detected the 3× volume spike with zero false positives. Prophet and ARIMA use built-in seasonality modeling, while LightGBM learns patterns from explicit lag and date features.
 
 ---
 
@@ -273,7 +283,7 @@ When the ML models detect an anomaly, an LLM-powered agent can be invoked to ana
 
 ### How It Works
 
-1. **ML Detection**: Prophet/ARIMA detects a volume spike on a specific date
+1. **ML Detection**: Prophet/ARIMA/LightGBM detects a volume spike on a specific date
 2. **Agent Invocation**: The agent is called with the anomaly date
 3. **Tool Calls**: The agent uses tools to gather statistics and read ticket samples
 4. **Report Generation**: A structured incident report is produced by the LLM agent

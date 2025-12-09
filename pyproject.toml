@@ -25,6 +25,7 @@ dependencies = [
     "matplotlib",
     "prophet",
     "statsmodels",
+    "lightgbm",
     "google-adk",
     "litellm",
     "pydantic",

@@ -39,6 +39,41 @@ def create_train_test_splits(daily_df: pd.DataFrame, train_end: datetime) -> tup
     return train_df, test_df
 
 
+def add_time_series_features(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Add time-series features for tree-based models.
+
+    Adds:
+    - Date components: day_of_week, is_weekend, month, day_of_month
+    - Lags: lag_1, lag_7, lag_14
+    - Rolling stats: rolling_mean_7d, rolling_std_7d
+    """
+    df = df.copy()
+    if not pd.api.types.is_datetime64_any_dtype(df["timestamp"]):
+        df["timestamp"] = pd.to_datetime(df["timestamp"])
+
+    # Date components
+    df["day_of_week"] = df["timestamp"].dt.dayofweek
+    df["is_weekend"] = df["timestamp"].dt.dayofweek >= 5
+    df["month"] = df["timestamp"].dt.month
+    df["day_of_month"] = df["timestamp"].dt.day
+    df["day_of_year"] = df["timestamp"].dt.dayofyear
+
+    # Lags
+    df["lag_1"] = df["count"].shift(1)
+    df["lag_7"] = df["count"].shift(7)
+    df["lag_14"] = df["count"].shift(14)
+
+    # Rolling stats (shift by 1 to avoid data leakage)
+    df["rolling_mean_7d"] = df["count"].shift(1).rolling(window=7).mean()
+    df["rolling_std_7d"] = df["count"].shift(1).rolling(window=7).std()
+
+    # Drop NaNs created by lags/rolling
+    df = df.dropna()
+
+    return df
+
+
 def export_splits(train_df: pd.DataFrame, test_df: pd.DataFrame):
     """Export train and test splits to CSV files."""
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)

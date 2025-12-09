@@ -15,7 +15,7 @@ import pandas as pd
 from pathlib import Path
 from datetime import datetime
 
-from ml.models import AnomalyProphet, AnomalyARIMA
+from ml.models import AnomalyProphet, AnomalyARIMA, AnomalyLGBM
 from ml.utils import evaluate, plot_results
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -33,6 +33,7 @@ ANOMALY_DATE = datetime(2023, 10, 5).date()
 MODELS = {
     "prophet": AnomalyProphet,
     "arima": AnomalyARIMA,
+    "lgbm": AnomalyLGBM,
 }
 
 logger = logging.getLogger(__name__)
