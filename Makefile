@@ -40,7 +40,7 @@ visualize:
 
 # Run tests
 test:
-	. .venv/bin/activate && python3 -m pytest dataset/tests.py -v
+	. .venv/bin/activate && python3 -m pytest tests/test_dataset.py -v
 
 # Clean generated files
 clean:
