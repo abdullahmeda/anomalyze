@@ -1,4 +1,4 @@
-"""System prompts for the anomaly analysis agent."""
+"""System and User prompts for the anomaly analysis agent."""
 
 
 SYSTEM_PROMPT = """You are an expert Site Reliability Engineer (SRE) and Support Analyst.
@@ -50,3 +50,15 @@ You MUST respond with a JSON object matching this exact schema:
 Output ONLY the JSON object, no additional text or markdown formatting.
 """
 
+
+def get_user_prompt(date: str) -> str:
+    """Generate the user prompt for analyzing anomalies on a specific date."""
+    return f"""An automated monitor has detected a high volume of support tickets on {date}.
+
+Your task is to conduct a full analysis and generate a final incident report.
+
+Use the available tools to:
+1. First, fetch the ticket statistics to understand the volume and distribution changes
+2. Then, fetch ticket samples to understand what customers are actually reporting
+3. Finally, synthesize your findings into a comprehensive incident report
+"""

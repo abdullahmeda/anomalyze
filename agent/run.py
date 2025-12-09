@@ -9,6 +9,7 @@ Usage:
 
 import argparse
 import asyncio
+import logging
 import os
 
 from dotenv import load_dotenv
@@ -24,10 +25,13 @@ from google.genai import types
 from phoenix.otel import register
 from openinference.instrumentation.google_adk import GoogleADKInstrumentor
 
-from agent.prompts import SYSTEM_PROMPT
+from agent.prompts import SYSTEM_PROMPT, get_user_prompt
 from agent.tools import fetch_ticket_stats, fetch_ticket_samples
 
 load_dotenv()
+
+# Setup logging
+logger = logging.getLogger(__name__)
 
 # Setup Tracing (Logs to a local Phoenix server)
 tracer_provider = register(project_name="anomalyze-agent")
@@ -75,15 +79,7 @@ async def analyze_anomaly(date: str) -> str:
         session_service=session_service,
     )
     
-    prompt = f"""An automated monitor has detected a high volume of support tickets on {date}.
-
-Your task is to conduct a full analysis and generate a final incident report.
-
-Use the available tools to:
-1. First, fetch the ticket statistics to understand the volume and distribution changes
-2. Then, fetch ticket samples to understand what customers are actually reporting
-3. Finally, synthesize your findings into a comprehensive incident report
-"""
+    prompt = get_user_prompt(date)
     
     # Run the agent and collect final response
     final_response = None
@@ -105,21 +101,21 @@ def main():
     args = parser.parse_args()
 
     if "OPENROUTER_API_KEY" not in os.environ:
-        print("Error: OPENROUTER_API_KEY not set. Create a .env file or export the variable.")
+        logger.error("OPENROUTER_API_KEY not set. Create a .env file or export the variable.")
         return
 
-    print(f"Analyzing anomaly on {args.date}...")
-    print("=" * 60)
+    logger.info(f"Analyzing anomaly on {args.date}...")
+    logger.info("=" * 60)
 
     report = asyncio.run(analyze_anomaly(args.date))
 
     if args.output:
         with open(args.output, "w") as f:
             f.write(report)
-        print(f"Report saved to {args.output}")
+        logger.info(f"Report saved to {args.output}")
     else:
-        print("\nIncident Report:")
-        print("-" * 60)
+        logger.info("\nIncident Report:")
+        logger.info("-" * 60)
         print(report)
 
 
