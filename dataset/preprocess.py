@@ -44,8 +44,8 @@ ANOMALY = {
     "label": "spike_volume",
     "type": "spike",
     "date": datetime(2023, 10, 5),
-    "volume_multiplier": 3.0,
-    "description": "3x volume spike with characteristic skew (simulates major outage/bug)",
+    "volume_multiplier": 1.5,
+    "description": "1.5x volume spike with characteristic skew (simulates major outage/bug)",
 }
 
 ANOMALY_CHARACTERISTICS = {

@@ -15,7 +15,7 @@ SCRIPT_DIR = Path(__file__).parent
 DATA_DIR = SCRIPT_DIR.parent / "dataset" / "data"
 ML_DATA_DIR = SCRIPT_DIR.parent / "ml" / "data"
 ANOMALY_DATE = datetime(2023, 10, 5).date()
-EXPECTED_MULTIPLIER = 3.0
+EXPECTED_MULTIPLIER = 1.5
 
 
 @pytest.fixture

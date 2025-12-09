@@ -4,14 +4,11 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Tests](https://img.shields.io/badge/tests-22%20passed-brightgreen.svg)](#-engineering--validation)
 
-> **"AI agents meet classical ML"**
-
 Anomalyze is a production-grade prototype demonstrating a hybrid architecture for Customer Experience (CX) observability. It combines the statistical rigor of **Classical Machine Learning** for signal detection with the advanced reasoning of **Generative AI Agents** for root cause analysis.
 
 This system is designed not just to flag anomalies, but to deliver actionable, structured insights that engineering and support teams can use immediately.
 
 ![Prophet Anomaly Detection Plot](ml/plots/prophet_anomaly_detection.png)
-*(Example output from the ML detection module)*
 
 ## 🏗️ System Architecture
 
