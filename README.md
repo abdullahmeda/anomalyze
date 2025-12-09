@@ -226,18 +226,6 @@ graph LR
 *   **Agent Invocation:** The ADK agent makes 2-4 LLM calls per analysis (~30-60 seconds total). To reduce latency, consider using faster models (e.g., GPT-4o-mini, Claude Haiku) for non-critical periods or implementing request batching.
 *   **Cost Management:** Agent analysis costs ~$0.10-0.30 per incident with Claude Sonnet 4.5. Use confidence thresholds on the ML detector to minimize false positives and unnecessary agent invocations.
 
-### Environment Variables
-
-For production deployment, configure these environment variables:
-
-```bash
-OPENROUTER_API_KEY=your-key-here       # LLM API access
-PHOENIX_COLLECTOR_ENDPOINT=...         # Optional: External Phoenix instance
-DATA_PATH=/path/to/ticket/data         # Path to your ticket database
-ANOMALY_THRESHOLD=0.99                 # Confidence interval for detection
-ALERT_WEBHOOK=https://...              # Slack/Teams webhook URL
-```
-
 ### Monitoring & Observability
 
 *   **ML Performance:** Track precision, recall, and false positive rate over time. The included evaluation metrics provide a starting point.
